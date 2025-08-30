@@ -11,9 +11,9 @@ typedef uint8_t byte;
 
 #define TEMP_BUFFER_CAP (4*1024)
 static_assert(TEMP_BUFFER_CAP%8==0);
+
 _Thread_local size_t temp_allocated = 0;
 _Thread_local byte temp_buffer[TEMP_BUFFER_CAP];
-
 
 size_t align(size_t n) {
 	if (n%8 == 0) return n;
@@ -54,8 +54,8 @@ String tprintf(const char* format, ...) {
 	int n = vsnprintf(NULL, 0, format, args);
 	assert(n > 0);
 
-	size_t size = n+1; 
-	char* buffer = talloc(size); 
+	size_t size = n+1;
+	char* buffer = talloc(size);
 	if(vsnprintf(buffer, size, format, args2) < 0) {
 		va_end(args);
 		va_end(args2);
@@ -93,8 +93,7 @@ CelestialPos get_moon_pos(int hour) {
 	// moon is hidden
 	if (hour > 5 && hour < 19) return (CelestialPos){0};
 
-
-	// moon is visible 
+	// moon is visible
 	float t;
 	if (hour >= 20 && hour < 24) {
 		t = normalize(19, 24, hour)*0.5;
@@ -105,15 +104,14 @@ CelestialPos get_moon_pos(int hour) {
 	float tx = -t+1;
 	float ty = pow(1-t*t, 2);
 
-	return (CelestialPos){.visible=true, .x=tx*GetScreenWidth(), .y=ty*GetScreenHeight()}; 
+	return (CelestialPos){.visible=true, .x=tx*GetScreenWidth(), .y=ty*GetScreenHeight()};
 }
 
 float get_moon_radius(int hour) {
 	// moon is hidden
 	if (hour > 5 && hour < 19) return 0;
 
-
-	// moon is visible 
+	// moon is visible
 	float t;
 	if (hour >= 20 && hour < 24) {
 		t = normalize(19, 24, hour)*0.5;
@@ -121,16 +119,16 @@ float get_moon_radius(int hour) {
 		t = normalize(0, 5, hour)*0.5+0.5;
 	}
 
-	return lerp(GetScreenHeight()/12, GetScreenHeight()/6, t); 
+	return lerp(GetScreenHeight()/12, GetScreenHeight()/6, t);
 }
 
 CelestialPos get_sun_pos(int hour) {
 	// sun is visible
 	if (hour >= 5 && hour <= 19) {
 		float t = normalize(5, 19, hour);
-	
+
 		float tx = t;
-		float ty = 1-pow(t-1, 2);
+		float ty = t*t;
 
 		return (CelestialPos){.visible=true, .x=tx*GetScreenWidth(), .y=ty*GetScreenHeight()};
 	}
@@ -165,7 +163,7 @@ Color moon_color(int hour) {
 	// moon is hidden
 	if (hour > 5 && hour < 19) return (Color){0};
 
-	// moon is visible 
+	// moon is visible
 	float t;
 	if (hour >= 20 && hour < 24) {
 		t = normalize(19, 24, hour)*0.5;
@@ -173,23 +171,23 @@ Color moon_color(int hour) {
 		t = normalize(0, 5, hour)*0.5+0.5;
 	}
 
-	return ColorLerp(BLACK, WHITE, t); 
+	return ColorLerp(BLACK, WHITE, t);
 }
 
 
 Color sky_color(float hour) {
     if (hour >= 4 && hour < 6) {
-        float t = normalize(4, 6, hour);                   
+        float t = normalize(4, 6, hour);
         return ColorLerp(BLACK, DARKBROWN, t);
     } else if (hour >= 6 && hour < 15) {
-        float t = normalize(6, 15, hour);                 
+        float t = normalize(6, 15, hour);
         return ColorLerp(DARKBROWN, SKYBLUE, t);
-    } else if (hour >= 15 && hour < 21) {
-        float t = normalize(15, 21, hour);
-        return ColorLerp(SKYBLUE, DARKBROWN, t);
-    } else if (hour >= 21 && hour < 22) {
-        float t = normalize(21, 22, hour);
-        return ColorLerp(DARKBROWN, BLACK, t);
+    } else if (hour >= 15 && hour < 20) {
+        float t = normalize(15, 20, hour);
+        return ColorLerp(SKYBLUE, DARKBLUE, t);
+    } else if (hour >= 20 && hour < 24) {
+        float t = normalize(20, 24, hour);
+        return ColorLerp(DARKBLUE, BLACK, t);
     }
 
     return BLACK;
@@ -225,9 +223,9 @@ int main(int, char**) {
 		DrawText(title.data, GetScreenWidth()/2-w/2, GetScreenHeight()/3, TITLE_SIZE, WHITE);
 		EndDrawing();
 
-		// float speed = 1.0f; 
+		// float speed = 1.0f;
 		// hour += GetFrameTime() * speed;
-		// hour = fmodf(hour, 24.0f); 
+		// hour = fmodf(hour, 24.0f);
 	}
 
 	CloseWindow();
